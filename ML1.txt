@@ -1,0 +1,64 @@
+
+import warnings
+warnings.filterwarnings('ignore')
+
+
+# Import necessary libraries
+import numpy as np
+import pandas as pd
+from sklearn import datasets
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import accuracy_score, classification_report
+
+
+# Load your iris dataset
+df = pd.read_csv('./datasets/iris.csv')
+
+
+df.isnull().sum()
+
+
+# Separating features and target variable
+X = df.iloc[:,:-1]  # Features (measurements)
+y = df['Species']  # Target variable 
+
+
+# Split the data into training and testing sets
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
+
+
+# Standardize the features
+scaler = StandardScaler()
+X_train = scaler.fit_transform(X_train)
+X_test = scaler.transform(X_test)
+
+
+# Apply Linear Discriminant Analysis (LDA) to transform the features
+lda = LinearDiscriminantAnalysis(n_components=2)
+X_train = lda.fit_transform(X_train, y_train)
+X_test = lda.transform(X_test)
+
+
+
+# Train a classification model (Logistic Regression) on the transformed features
+model = LogisticRegression()
+model.fit(X_train, y_train)
+
+
+
+# Evaluate the model's performance using appropriate metrics
+y_pred = model.predict(X_test)
+
+
+# Accuracy
+accuracy = accuracy_score(y_test, y_pred)
+print(f"Accuracy: {accuracy:.2f}")
+
+
+
+# Classification Report
+report = classification_report(y_test, y_pred, target_names=df['Species'].unique())
+print("Classification Report:\n", report)
