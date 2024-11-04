@@ -1,0 +1,78 @@
+import requests
+import pandas as pd
+import matplotlib.pyplot as plt
+import json
+import seaborn as sns
+
+API_key = 'a89512f773d1c2a5a4fd2b6004973d6b'
+
+countries = ['Jamaica', 'Indonesia', 'United States', "Turkey", 'Saudi Arabia', "Egypt", 'China']
+
+country_name_list = []
+maxtemp = []
+mintemp = []
+humidity = []
+windspeed = []
+
+for country_names in countries:
+    url = f'http://api.openweathermap.org/data/2.5/weather?q={country_names}&APPID={API_key}&units=metric'
+    r = requests.get(url)
+    data = r.json()
+
+    if 'name' in data:
+        country_name_list.append(data['name'])
+        maxtemp.append(data['main']['temp_max'])
+        mintemp.append(data['main']['temp_min'])
+        humidity.append(data['main']['humidity'])
+        windspeed.append(data['wind']['speed'])
+    else:
+        print(f"Data not found for {country_names}")
+
+df = pd.DataFrame()
+df['Names'] = country_name_list
+df['Max_Temp'] = maxtemp
+df['Min_Temp'] = mintemp
+df['Humidity'] = humidity
+df['WindSpeed'] = windspeed
+
+df.head()
+
+
+
+
+
+df.isna().sum()
+
+
+
+df.duplicated().sum()
+
+
+df.describe()
+
+
+df.info()
+
+
+
+
+plt.figure(figsize=(12,6))
+plt.bar(df['Names'], df['Max_Temp'], color='crimson')
+plt.title("Max Temperature in different countries")
+plt.ylabel("Temperature")
+plt.show()
+
+
+plt.figure(figsize=(12,6))
+plt.bar(df['Names'], df['Min_Temp'], color='skyblue')
+plt.title("Min Temperature in different countries")
+plt.ylabel("Temperature")
+plt.show()
+
+
+
+corre = df[['Min_Temp','Humidity']].corr()
+sns.heatmap(corre, annot=True)
+plt.title("Temperature to Humidity relationship")
+plt.show()
+
